@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 import axios from "axios";
 import L from "leaflet";
 
@@ -28,7 +29,7 @@ function App() {
   }, []);
 
   return (
-    <div style={{ height: "100vh", width: "100%" }}>
+    <div style={{ height: "100vh", width: "100%", margin: 0, padding: 0}}>
       <MapContainer
         center={[19.4361, -99.0719]} // CDMX
         zoom={10}
