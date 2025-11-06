@@ -14,20 +14,20 @@ function App() {
   const [vuelos, setVuelos] = useState([]);
 
   useEffect(() => {
-    const obtenerVuelos = async () => {
-      try {
-        const res = await axios.get("http://127.0.0.1:5000/vuelos_cdmx");
-        setVuelos(res.data.vuelos || []);
-      } catch (err) {
-        console.error("Error al obtener vuelos:", err);
-      }
-    };
+  const obtenerVuelos = async () => {
+    try {
+      const res = await axios.get("http://127.0.0.1:5000/api/vuelos");
+      setVuelos(res.data.vuelos || []); // 👈 esta es la clave correcta
+    } catch (err) {
+      console.error("Error al obtener vuelos:", err);
+      setVuelos([]);
+    }
+  };
 
-    obtenerVuelos();
-    const intervalo = setInterval(obtenerVuelos, 10000); // Actualiza cada 10s
-    return () => clearInterval(intervalo);
-  }, []);
-
+  obtenerVuelos();
+  const intervalo = setInterval(obtenerVuelos, 10000);
+  return () => clearInterval(intervalo);
+}, []);
   return (
     <div style={{ height: "100vh", width: "100%", margin: 0, padding: 0}}>
       <MapContainer
