@@ -7,7 +7,7 @@ DB_PASS="admin123"
 DB_NAME="monitorvuelosCDMX"
 
 # Configuración de Zabbix
-ZABBIX_SERVER="98.12.20.26"
+ZABBIX_SERVER="187.169.151.229"
 ZABBIX_PORT=10051
 HOSTNAME="MiUbuntuAgent"
 

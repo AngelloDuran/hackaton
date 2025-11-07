@@ -1,9 +1,20 @@
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import axios from "axios";
 import L from "leaflet";
+import "./Home.css"; // Estilos personalizados
+import {
+  FaPlane,
+  FaPlaneDeparture,
+  FaPlaneArrival,
+  FaCalendarAlt,
+  FaTimesCircle,
+  FaRandom,
+  FaCircle,
+} from "react-icons/fa";
 
+// === ICONOS PARA MAPA ===
 const avionIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/3125/3125713.png",
   iconSize: [30, 30],
@@ -11,33 +22,70 @@ const avionIcon = new L.Icon({
 
 const aeropuertoIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-  iconSize: [20, 20],
+  iconSize: [25, 25],
 });
 
+// === TARJETAS DE ESTADÍSTICAS ===
+const StatCard = ({ title, value, icon, color }) => (
+  <div className="stat-card">
+    <div className="stat-card-icon" style={{ backgroundColor: color }}>
+      {icon}
+    </div>
+    <div className="stat-card-text">
+      <div className="stat-card-value">{value}</div>
+      <div className="stat-card-title">{title}</div>
+    </div>
+  </div>
+);
+
+const statColors = {
+  vuelosActivos: "#0a4da2",
+  enVuelo: "#27ae60",
+  aterrizados: "#8e44ad",
+  programados: "#2980b9",
+  cancelados: "#c0392b",
+  desviados: "#f39c12",
+};
+
+// === COMPONENTE PRINCIPAL ===
 export default function Home() {
   const [vuelos, setVuelos] = useState([]);
-  const vuelosRef = useRef({}); // Para guardar posiciones actuales para animación
+  const vuelosRef = useRef({});
+  const [stats, setStats] = useState({});
+  const [error, setError] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
 
+  // Actualizar reloj
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Obtener vuelos y estadísticas
   useEffect(() => {
     const obtenerVuelos = async () => {
       try {
-        const res = await axios.get("http://127.0.0.1:5000/api/vuelos", {witchCredentials: true});
+        const res = await axios.get("http://127.0.0.1:5000/api/vuelos", { withCredentials: true });
         const nuevosVuelos = res.data.vuelos || [];
 
-        const actualizados = nuevosVuelos.map((v) => {
-          const id = v.callsign || Math.random(); // identificar vuelo
-          const latNew = Number(v.latitud);
-          const lonNew = Number(v.longitud);
-          if (isNaN(latNew) || isNaN(lonNew)) return null;
+        const actualizados = nuevosVuelos
+          .map((v) => {
+            const id = v.callsign || Math.random();
+            const latNew = Number(v.latitud);
+            const lonNew = Number(v.longitud);
+            if (isNaN(latNew) || isNaN(lonNew)) return null;
 
-          const posActual = vuelosRef.current[id] || [latNew, lonNew];
-          vuelosRef.current[id] = posActual;
-          return { ...v, posActual };
-        }).filter(Boolean);
+            const posActual = vuelosRef.current[id] || [latNew, lonNew];
+            vuelosRef.current[id] = posActual;
+            return { ...v, posActual };
+          })
+          .filter(Boolean);
 
         setVuelos(actualizados);
+        setStats(res.data.stats || {});
       } catch (err) {
         console.error("Error al obtener vuelos:", err);
+        setError("No se pudieron cargar los datos de vuelos.");
       }
     };
 
@@ -46,7 +94,7 @@ export default function Home() {
     return () => clearInterval(intervalo);
   }, []);
 
-  // Animación de movimiento
+  // Animación del movimiento
   useEffect(() => {
     const animar = setInterval(() => {
       setVuelos((prev) =>
@@ -74,60 +122,102 @@ export default function Home() {
   const safeString = (value) => (value ? value : "-");
 
   return (
-    <div style={{ height: "100vh", width: "100%", margin: 0, padding: 0 }}>
-      <MapContainer
-        center={[19.4361, -99.0719]}
-        zoom={5}
-        style={{ height: "100%", width: "100%" }}
-      >
-        <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+    <div className="main-content">
+      {/* Header */}
+      <header className="header">
+        <div>
+          <h1 className="header-title">Monitoreo de Tráfico Aéreo CDMX</h1>
+          <p className="header-subtitle">Aeropuerto Internacional de la Ciudad de México</p>
+        </div>
+        <div className="time-box">
+          <div className="time-actual">
+            {currentTime.toLocaleTimeString("es-MX", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+              hour12: true,
+            })}
+          </div>
+          <div className="time-fecha">
+            {currentTime.toLocaleDateString("es-MX", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </div>
+        </div>
+      </header>
 
-        {vuelos.map((v, i) => {
-          const [lat, lon] = v.posActual;
-          const latOrigen = Number(v.lat_origen);
-          const lonOrigen = Number(v.lon_origen);
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-          return (
-            <div key={i}>
-              {/* Marker del avión */}
-              <Marker position={[lat, lon]} icon={avionIcon}>
-                <Popup>
-                  ✈️ <b>{safeString(v.callsign)}</b>
-                  <br />
-                  País: {safeString(v.pais_origen)}
-                  <br />
-                  Altitud: {formatNumber(v.altitud)} m
-                  <br />
-                  Velocidad: {formatNumber(v.velocidad)} km/h
-                </Popup>
-              </Marker>
+      {/* Tarjetas */}
+      <div className="stats-grid">
+        <StatCard title="Vuelos Activos" value={stats.vuelosActivos || vuelos.length} icon={<FaPlane />} color={statColors.vuelosActivos} />
+        <StatCard title="En Vuelo" value={stats.enVuelo || 0} icon={<FaPlaneDeparture />} color={statColors.enVuelo} />
+        <StatCard title="Aterrizados" value={stats.aterrizados || 0} icon={<FaPlaneArrival />} color={statColors.aterrizados} />
+        <StatCard title="Programados" value={stats.programados || 0} icon={<FaCalendarAlt />} color={statColors.programados} />
+        <StatCard title="Cancelados" value={stats.cancelados || 0} icon={<FaTimesCircle />} color={statColors.cancelados} />
+        <StatCard title="Desviados" value={stats.desviados || 0} icon={<FaRandom />} color={statColors.desviados} />
+      </div>
 
-              {/* Línea desde aeropuerto de origen */}
-              {!isNaN(latOrigen) && !isNaN(lonOrigen) && (
-                <>
-                  <Polyline
-                    positions={[
-                      [latOrigen, lonOrigen],
-                      [lat, lon],
-                    ]}
-                    color="green"
-                    weight={2}
-                    dashArray="5,5"
-                  />
-                  <Marker position={[latOrigen, lonOrigen]} icon={aeropuertoIcon}>
+      {/* Mapa */}
+      <div className="section-container">
+        <h3 className="section-title">
+          Vista en Tiempo Real{" "}
+          <span className="update-status">
+            <FaCircle size="0.6rem" /> &nbsp;Actualización cada 5s
+          </span>
+        </h3>
+
+        <div className="map-wrapper">
+          <MapContainer center={[19.4361, -99.0719]} zoom={6} className="map-container">
+            <TileLayer
+              attribution="&copy; OpenStreetMap contributors"
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+
+            {vuelos.map((v, i) => {
+              const [lat, lon] = v.posActual;
+              const latOrigen = Number(v.lat_origen);
+              const lonOrigen = Number(v.lon_origen);
+
+              return (
+                <React.Fragment key={i}>
+                  <Marker position={[lat, lon]} icon={avionIcon}>
                     <Popup>
-                      🛫 Origen: {safeString(v.aeropuerto_origen || "Desconocido")}
+                      ✈️ <b>{safeString(v.callsign)}</b>
+                      <br />
+                      País: {safeString(v.pais_origen)}
+                      <br />
+                      Altitud: {formatNumber(v.altitud)} m
+                      <br />
+                      Velocidad: {formatNumber(v.velocidad)} km/h
                     </Popup>
                   </Marker>
-                </>
-              )}
-            </div>
-          );
-        })}
-      </MapContainer>
+
+                  {!isNaN(latOrigen) && !isNaN(lonOrigen) && (
+                    <>
+                      <Polyline
+                        positions={[
+                          [latOrigen, lonOrigen],
+                          [lat, lon],
+                        ]}
+                        color="green"
+                        weight={2}
+                        dashArray="5,5"
+                      />
+                      <Marker position={[latOrigen, lonOrigen]} icon={aeropuertoIcon}>
+                        <Popup>🛫 {safeString(v.aeropuerto_origen || "Desconocido")}</Popup>
+                      </Marker>
+                    </>
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </MapContainer>
+        </div>
+      </div>
     </div>
   );
 }
