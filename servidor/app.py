@@ -38,6 +38,7 @@ db_config = {
     "user": "root",
     "password": "admin123",
     "database": "monitorvuelosCDMX",
+    "port": 3306
 }
 
 # 🔭 Coordenadas de CDMX
