@@ -1,5 +1,4 @@
 from flask import Flask, jsonify, request
-# Asegúrate de que CORS esté configurado para credenciales
 from flask_cors import CORS
 import mysql.connector
 import requests
@@ -7,8 +6,6 @@ import traceback
 from datetime import datetime
 import threading
 import time
-
-# --- Nuevas importaciones para Login ---
 from werkzeug.security import check_password_hash
 from flask_login import (
     LoginManager,
@@ -19,10 +16,45 @@ from flask_login import (
     current_user,
 )
 
+
 app = Flask(__name__)
 # --- Configuración para Login ---
 # ¡MUY IMPORTANTE! Flask necesita esto para encriptar la cookie de sesión
 app.config["SECRET_KEY"] = "ea5293fff1b5f26fc0b782d72e5267731e0b074b0eec2bd7"
+@app.route("/api/login", methods=["POST"])
+def login():
+    data = request.get_json()
+    username = data.get("username")
+    password = data.get("password")
+
+    if not username or not password:
+        return jsonify({"success": False, "message": "Rellena todos los campos"}), 400
+
+    try:
+        conn = mysql.connector.connect(**db_config)
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM usuarios WHERE username = %s", (username,))
+        user_data = cursor.fetchone()
+
+        if not user_data:
+            return jsonify({"success": False, "message": "Usuario no encontrado"}), 404
+
+        # Verificar contraseña
+        if not check_password_hash(user_data["password_hash"], password):
+            return jsonify({"success": False, "message": "Contraseña incorrecta"}), 401
+
+        # Crear objeto User y hacer login
+        user = User(user_data["id_user"], user_data["username"], user_data["password_hash"])
+        login_user(user)  # Flask-Login crea la sesión y cookie
+        return jsonify({"success": True, "message": "Login exitoso"})
+    except Exception as e:
+        print("❌ ERROR en /api/login:", e)
+        return jsonify({"success": False, "message": "Error en el servidor"}), 500
+    finally:
+        if "cursor" in locals():
+            cursor.close()
+        if "conn" in locals() and conn.is_connected():
+            conn.close()
 
 # Configurar CORS para permitir credenciales (cookies) desde tu app de React
 CORS(

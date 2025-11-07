@@ -36,7 +36,111 @@
 .card {
   padding: 2em;
 }
-
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #0a4da2; /* Fondo azul principal */
+}
 .read-the-docs {
   color: #888;
+}/* Contenedor principal */
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #0a4da2;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Icono superior */
+.icon-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0a4da2;
+  margin: 0 auto 20px auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* Títulos */
+.login-title {
+  color: white;
+  text-align: center;
+  font-weight: bold;
+  font-size: 2.5rem;
+}
+.login-subtitle {
+  color: white;
+  text-align: center;
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  opacity: 0.9;
+}
+
+/* Caja del formulario */
+.login-box {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 450px;
+}
+.form-title {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.form-subtitle {
+  color: #666;
+  margin-bottom: 25px;
+  text-align: center;
+}
+.input-group {
+  margin-bottom: 20px;
+}
+.input-field {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box;
+  margin-top: 5px;
+  font-size: 1rem;
+  background: #f9f9f9;
+}
+.login-button {
+  width: 100%;
+  padding: 14px;
+  background: #0041a3;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+.login-button:hover {
+  background: #002f70;
+}
+.error-message {
+  color: red;
+  background: #ffebee;
+  border: 1px solid red;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 15px;
 }

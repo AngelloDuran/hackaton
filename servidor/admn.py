@@ -12,8 +12,8 @@ db_config = {
 }
 
 # --- DATOS DEL ADMIN QUE QUIERES CREAR ---
-ADMIN_USER = "admin" # <-- El usuario que escribirás en el formulario
-ADMIN_PASS = "$zabbixcloud$" # <-- La contraseña que escribirás
+ADMIN_USER = "Angello" # <-- El usuario que escribirás en el formulario
+ADMIN_PASS = "admin" # <-- La contraseña que escribirás
 
 try:
     print(f"Conectando a la base de datos '{db_config['database']}'...")
@@ -24,7 +24,7 @@ try:
     hashed_password = generate_password_hash(ADMIN_PASS)
     
     print(f"Creando usuario '{ADMIN_USER}'...")
-    sql_insert = "INSERT INTO administrador (username, password_hash) VALUES (%s, %s)"
+    sql_insert = "INSERT INTO usuarios (username, password_hash) VALUES (%s, %s)"
     cursor.execute(sql_insert, (ADMIN_USER, hashed_password))
     
     conn.commit()
