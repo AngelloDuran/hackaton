@@ -1,6 +1,13 @@
 CREATE DATABASE monitorvuelosCDMX;
 USE monitorvuelosCDMX;
 
+create table usuarios(
+id_user int auto_increment primary key,
+username varchar (50),
+password_hash varchar(255)
+);
+
+
 -- 1. TABLA PAIS (CORREGIDA)
 CREATE TABLE pais (
     id_pais INT AUTO_INCREMENT PRIMARY KEY,
