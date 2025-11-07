@@ -21,7 +21,7 @@ export default function Home() {
   useEffect(() => {
     const obtenerVuelos = async () => {
       try {
-        const res = await axios.get("http://127.0.0.1:5000/api/vuelos");
+        const res = await axios.get("http://127.0.0.1:5000/api/vuelos", {witchCredentials: true});
         const nuevosVuelos = res.data.vuelos || [];
 
         const actualizados = nuevosVuelos.map((v) => {
