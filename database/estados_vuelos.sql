@@ -7,7 +7,6 @@ username varchar (50),
 password_hash varchar(255)
 );
 
-select * from usuarios;
 -- 1. TABLA PAIS (CORREGIDA)
 CREATE TABLE pais (
     id_pais INT AUTO_INCREMENT PRIMARY KEY,
@@ -84,3 +83,5 @@ CREATE TABLE vuelo (
     FOREIGN KEY (id_aeropuerto_destino) REFERENCES aeropuerto(id_aeropuerto),
     FOREIGN KEY (id_estado) REFERENCES estado(id_estado)
 );
+SELECT * FROM vuelo; ORDER BY id_vuelo DESC LIMIT 10;
+Select * from ruta;
