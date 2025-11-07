@@ -22,7 +22,7 @@ from flask_login import (
 app = Flask(__name__)
 # --- Configuración para Login ---
 # ¡MUY IMPORTANTE! Flask necesita esto para encriptar la cookie de sesión
-app.config["SECRET_KEY"] = "un-secreto-muy-dificil-de-adivinar"
+app.config["SECRET_KEY"] = "ea5293fff1b5f26fc0b782d72e5267731e0b074b0eec2bd7"
 
 # Configurar CORS para permitir credenciales (cookies) desde tu app de React
 CORS(
