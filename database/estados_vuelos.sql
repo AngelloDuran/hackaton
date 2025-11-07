@@ -7,7 +7,7 @@ username varchar (50),
 password_hash varchar(255)
 );
 
-
+select * from usuarios;
 -- 1. TABLA PAIS (CORREGIDA)
 CREATE TABLE pais (
     id_pais INT AUTO_INCREMENT PRIMARY KEY,
